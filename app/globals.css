@@ -1,0 +1,28 @@
+@import "tailwindcss";
+/* Removed invalid @custom-variant rule */
+
+@layer base {
+  * {
+    border: var(--border);
+    outline: 50% solid var(--ring);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+}
+
+@layer utilities {
+  .bg-home-img {
+    background-image: url('/images/home-img.jpg');
+  }
+  .animate-appear {
+    animation: appear 1s ease-in-out;
+  }
+
+  .animate-slide {
+    animation: slide 750ms ease-in-out;
+  }
+}
+
+
