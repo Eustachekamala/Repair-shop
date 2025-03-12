@@ -1,5 +1,5 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { customers } from "@/db/schema/customers";
+import { customers } from "@/db/schema";
 
 import { z } from "zod";
 
