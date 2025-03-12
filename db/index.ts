@@ -8,7 +8,7 @@ config({path : ".env.local"});
 //logger
 //const db = drizzle(sql, {logger : true})
 
-const sql = neon(process.env.DATABASE_URI!);
+const sql = neon(process.env.DATABASE_URL!);
 
 const db = drizzle(sql)
 
