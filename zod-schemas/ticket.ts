@@ -12,6 +12,6 @@ export const insertTicketSchema = createInsertSchema(tickets, {
 
 export const selectTicketSchema = createSelectSchema(tickets);
 
-export type inserCustomerSchemaType = typeof insertTicketSchema._type;
+export type insertTicketSchemaType = typeof insertTicketSchema._type;
 
 export type selectTicketSchemaType = typeof selectTicketSchema._type;

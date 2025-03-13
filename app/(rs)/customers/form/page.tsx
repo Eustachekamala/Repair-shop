@@ -1,5 +1,5 @@
 import { BackButton } from "@/components/BackButton";
-// import CustomerForm from "./CustomerForm";
+import CustomerForm from "./CustomerForm";
 import { getCustomer } from "@/lib/queries/getCustomer";
 import * as Sentry from "@sentry/nextjs"
 
@@ -21,33 +21,17 @@ async function CustomerFormPage({searchParams,} : {searchParams : Promise<{[key 
                
             }
             console.log(customer);
-            
-           return (
-                    <>
-                        <h2 className="text-2xl mb-2 text-green-400">Customer ID #{customerId} loaded successfully</h2>
-                        <div>
-                            <p>Customer: {customer.firstName}</p>
-                            <p>Email: {customer.email}</p>
-                        </div>
-                        <BackButton className="h-10 cursor-pointer rounded-lg bg-blue-700 text-wh" title="Go Back" variant="ghost" />
-                    </>
-                );
+             return <CustomerForm customer={customer}/>
         } else {
             // new customer form component
+            return <CustomerForm/>
         }
-
     } catch (error) {
         if(error instanceof Error){
             Sentry.captureException(error)
             throw error
         }
     }
-
-    return ( 
-        <>
-            {/* <CustomerForm/> */}
-        </>
-     );
 }
 
 export default CustomerFormPage;
