@@ -8,6 +8,8 @@ import { insertTicketSchema, type insertTicketSchemaType, type selectTicketSchem
 import { selectCustomerSchemaType } from "@/zod-schemas/customer";
 import { InPutWithLabel } from "@/components/Inputs/InputWithLabel";
 import { TextAreaWithLabel } from "@/components/Inputs/TextAreaWithLabel";
+import { CheckBoxWithLabel } from "@/components/Inputs/CheckBoxWithLabel";
+import { SelectWithLabel } from "@/components/Inputs/SelectWithLable";
 
 type Props = {
   customer: selectCustomerSchemaType,
@@ -57,6 +59,12 @@ export default function TicketForm({ customer, ticket }: Props) {
               fieldTitle="Tech"
               nameInSchema="tech"
               disabled={true}
+            />
+
+            <CheckBoxWithLabel<insertTicketSchemaType>
+              fieldTitle="Completed"
+              nameInSchema="completed"
+              message="Yes"
             />
 
             <div className="mt-4 space-y-2">
