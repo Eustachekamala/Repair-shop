@@ -40,6 +40,11 @@
   .animate-slide {
     animation: slide 750ms ease-in-out;
   }
+
 }
 
-
+@layer base {
+  .bg-accent {
+    background-color: var(--color-accent);
+  }
+}

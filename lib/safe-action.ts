@@ -30,7 +30,7 @@ export const actionClient = createSafeActionClient({
             actionName : z.string(),
         })
      },
-     handleServerError(e, utils){
+     handleServerError(e, utils){        
         const { clientInput, metadata  } = utils;
         Sentry.captureException(e, (scope) => {
             scope.clear();
@@ -40,7 +40,7 @@ export const actionClient = createSafeActionClient({
             return scope
         })
 
-        if(e.constructor.name === 'DatabaseError'){
+        if(e.constructor.name === 'NeonDbError'){
             return 'Database Error :  Your Database did not save. Support will be notified,'
         }
         return e.message
