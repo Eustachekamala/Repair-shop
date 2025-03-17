@@ -19,7 +19,10 @@ export const metadata: Metadata = {
     default : "Computer Repair Shop"
   },
   description: "Den's Computer Shop",
-  applicationName : "Repair Shop"
+  icons : {
+    icon : '/images/icon.jpeg'
+  },
+  applicationName : "Repair Shop",
 };
 
 export default function RootLayout({
