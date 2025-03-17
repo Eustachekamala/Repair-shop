@@ -6,6 +6,7 @@ import { ModeToggle } from "./ModeToggle";
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs";
 import { Button } from "./ui/button";
 import { createContext } from 'react';
+import { NavButtonMenu } from "./NavButtonMenu";
 
 export const MyContext = createContext({ someValue: 'default' });
 
@@ -23,7 +24,10 @@ function Header() {
                 </div>
                 <div className="flex items-center">
                     <NavButton href="/tickets" label="Tickets" icon={File}/>
-                    <NavButton href="/customers" label="Customers" icon={UsersRound}/>
+                    <NavButtonMenu icon={UsersRound} label="Custmers menu" choises={[
+                        { title : "Search Customers", href:"/customers"},
+                        { title : "New Customer", href:"/customers/form"},
+                    ]}/>
                     <ModeToggle/>
                     <Button variant="ghost" size="icon" aria-label="logOut" title="logOut" className="rounded-full" asChild>
                         <LogoutLink><LogOut/></LogoutLink>

@@ -1,15 +1,21 @@
-import React from 'react'
+import CustomerSearch from "./CustomerSearch"
+import { getCustomerSearchResults } from "@/lib/queries/getCustomerSearch"
 
 export const metadata = {
-    title : "Customers",
+    title : "Customer Search",
 }
 
-const Customers = () => {
+export default async function Customers({searchParams,} : {searchParams : Promise<{[key : string] : string | undefined}>} ) {
+  const { searchText } = await searchParams
+  if(!searchText) return <CustomerSearch />
+
+  // query database
+  const results = await getCustomerSearchResults(searchText)
+
   return (
-    <div>
-      Customers
-    </div>
+    <>
+      <CustomerSearch />
+      <p>{JSON.stringify(results)}</p>
+    </>
   )
 }
-
-export default Customers
