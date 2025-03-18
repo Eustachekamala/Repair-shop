@@ -2,6 +2,7 @@
 import { getOpenTicket } from "@/lib/queries/getOpenTicket";
 import { getTicketSearchResult } from "@/lib/queries/getTicketSearchResult";
 import TicketSearch from "./TicketSearch"
+import TicketTable from "./TicketTable";
 
 export const metadata = {
     title : "Ticket Search",
@@ -14,7 +15,7 @@ async function Tickets({searchParams,} : {searchParams : Promise<{[key : string]
     return (
     <>
       <TicketSearch/>
-      <p>{JSON.stringify(results)}</p>
+      {results.length ? <TicketTable data={results}/> : <p className="mt-4"> No open Ticket found </p>}
     </>
   )}
 
@@ -24,7 +25,7 @@ async function Tickets({searchParams,} : {searchParams : Promise<{[key : string]
   return (
     <>
       <TicketSearch />
-      <p>{JSON.stringify(results)}</p>
+     {results.length ? <TicketTable data={results}/> : <p className="mt-4"> No results found </p>}
     </>
   )
 }

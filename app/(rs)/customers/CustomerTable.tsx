@@ -56,7 +56,7 @@ export default function CustomerTable({ data }: Props) {
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} className="bg-gray-700/60">
+                <TableHead key={header.id} className="bg-gray-700/60 text-center">
                   <div>
                     {header.isPlaceholder
                       ? null
