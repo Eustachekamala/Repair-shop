@@ -45,7 +45,7 @@ export default function TicketForm({
     title: ticket?.title ?? "",
     description: ticket?.description ?? "",
     completed: ticket?.completed ?? false,
-    tech: ticket?.tech ?? "new-ticket@example.com",
+    tech: ticket?.tech.toLowerCase() ?? "new-ticket@example.com",
   };
 
   const form = useForm<insertTicketSchemaType>({
@@ -69,6 +69,7 @@ export default function TicketForm({
         },
       })}
     },
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onError({ error }) {   
         toast("Saved failed ❌", {
           style: {

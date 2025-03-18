@@ -22,11 +22,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useRouter } from "next/navigation";
-import { CircleCheckIcon, CircleXIcon, ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CircleCheckIcon, CircleXIcon, ArrowUpDown, ArrowDown, ArrowUp, RefreshCcwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Filter from "@/components/react-table/Filter";
+import { usePolling } from "@/app/hooks/usePolling";
 
 type Props = {
   data: TicketSearchResultsType;
@@ -37,6 +38,8 @@ type RowType = TicketSearchResultsType[0];
 export default function TicketTable({ data }: Props) {
     const router = useRouter();
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const searchParams = useSearchParams()
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     const [sorting, setSorting] = useState<SortingState>([
         {
@@ -44,6 +47,14 @@ export default function TicketTable({ data }: Props) {
             desc: false, // false for ascending
         }
     ])
+
+    usePolling(30000, searchParams.get("searchText"))
+
+    const pageIndex = useMemo(() => {
+      const page = searchParams.get("page")
+      return page ? parseInt(page) - 1 : 0
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    },[searchParams.get("page")])
 
     const columnHeadersArray: Array<keyof RowType> = [
         "ticketDate",
@@ -54,6 +65,14 @@ export default function TicketTable({ data }: Props) {
         "email",
         "completed",
     ];
+
+  const columnWidths = {
+    completed : 100,
+    ticketDate : 100,
+    title : 250,
+    tech : 225,
+    email : 225,
+  }
 
   const columnHelper = createColumnHelper<RowType>();
 
@@ -76,6 +95,7 @@ export default function TicketTable({ data }: Props) {
       },
       {
         id: columName,
+        size : columnWidths[columName as keyof typeof columnWidths] ?? undefined,
         header: ({ column }) => {
             return (
                 <Button variant="ghost" className="p-1 w-full flex justify-between" 
@@ -120,10 +140,9 @@ export default function TicketTable({ data }: Props) {
     state : {
         sorting,
         columnFilters,
-    },
-    initialState: {
-      pagination: {
-        pageSize: 10,
+        pagination: {
+          pageIndex,
+          pageSize: 10,
       },
     },
     onColumnFiltersChange: setColumnFilters,
@@ -135,104 +154,149 @@ export default function TicketTable({ data }: Props) {
     getSortedRowModel : getSortedRowModel(),
   });
 
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    router.refresh(); // Refresh data
+  };
+
+  useEffect(() => {
+    if (isRefreshing) {
+      // Stop animation after 1 second
+      const timeout = setTimeout(() => setIsRefreshing(false), 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isRefreshing]);
+
   return (
-    <div className="flex flex-col gap-4 mt-6">
-      <div className=" rounded-lg overflow-hidden border border-border">
-        <Table className="border">
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="bg-gray-700/60 text-center text-white p-2"
-                  > 
-                    <div>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </div>
-                    { header.column.getCanFilter() ? (
-                        <div className="mt-2">
-                            <Filter column={header.column}/>
-                        </div>
-                    ) : null}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                className="cursor-pointer hover:bg-gray-800/60 dark:hover:bg-gray-700/60"
-                onClick={() =>
-                  router.push(`/tickets/form?ticketId=${row.original.id}`)
-                }
+      <div className="flex flex-col gap-4 mt-6">
+        <div className="rounded-lg overflow-hidden border border-border">
+          <Table className="border">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className="bg-gray-700/60 text-center text-white p-2"
+                      style={{width: header.getSize()}}
+                    > 
+                      <div>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </div>
+                      { header.column.getCanFilter() ? (
+                          <div className="mt-2">
+                              <Filter 
+                                  column={header.column}
+                                  filteredRaws = {table.getFilteredRowModel().rows.map(row => row.getValue(header.column.id))}
+                                />
+                          </div>
+                      ) : null}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  className="cursor-pointer hover:bg-gray-800/60 dark:hover:bg-gray-700/60"
+                  onClick={() =>
+                    router.push(`/tickets/form?ticketId=${row.original.id}`)
+                  }
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="border">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex justify-between items-center gap-1 flex-wrap">
+          {/* Left side */}
+          <div className="w-full sm:w-auto text-center sm:text-left mb-2 sm:mb-0">
+            <p className="whitespace-nowrap font-bold">
+              {`Page ${
+                table.getState().pagination.pageIndex + 1
+              } of ${table.getPageCount()}`}
+              &nbsp;&nbsp;
+              {`[${table.getFilteredRowModel().rows.length} ${
+                table.getFilteredRowModel().rows.length !== 1
+                  ? "total results"
+                  : "result"
+              }]`}
+            </p>
+          </div>
+
+          {/* Right side */}
+          <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+            {/* Buttons Group 1 */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                className="cursor-pointer w-full sm:w-auto"
+                variant="outline"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="border">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex justify-between items-center">
-        {/* Left side */}
-        <div className="flex basis-1/3 items-center">
-          <p className="whitespace-nowrap font-bold">
-            {`Page ${
-              table.getState().pagination.pageIndex + 1
-            } of ${table.getPageCount()}`}
-            &nbsp;&nbsp;
-            {`[${table.getFilteredRowModel().rows.length} ${
-              table.getFilteredRowModel().rows.length !== 1
-                ? "total results"
-                : "result"
-            }]`}
-          </p>
-        </div>
-        {/* Right side */}
-        <div className="flex basis-1/3 justify-end space-x-1">
-          <Button
-            className="cursor-pointer"
-            variant="outline"
-            onClick={() => table.resetSorting()}
-          >
-            Reset Sorting
-          </Button>
-          <Button
-            className="cursor-pointer"
-            variant="outline"
-            onClick={() => table.resetColumnFilters()}
-          >
-            Reset Filters
-          </Button>
-          <Button
-            className="cursor-pointer"
-            variant="outline"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            className="cursor-pointer"
-            variant="outline"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
+                Refresh Data <RefreshCcwIcon className={isRefreshing ? "animate-spin" : ""} />
+              </Button>
+              <Button
+                className="cursor-pointer w-full sm:w-auto"
+                variant="outline"
+                onClick={() => table.resetSorting()}
+              >
+                Reset Sorting
+              </Button>
+              <Button
+                className="cursor-pointer w-full sm:w-auto"
+                variant="outline"
+                onClick={() => table.resetColumnFilters()}
+              >
+                Reset Filters
+              </Button>
+            </div>
+
+            {/* Buttons Group 2 */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                className="cursor-pointer w-full sm:w-auto"
+                variant="outline"
+                onClick={() => {
+                  const newIndex = table.getState().pagination.pageIndex - 1;
+                  table.setPageIndex(newIndex);
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.set("page", (newIndex + 1).toString());
+                  router.replace(`?${params.toString()}`, { scroll: false });
+                }}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                className="cursor-pointer w-full sm:w-auto"
+                variant="outline"
+                onClick={() => {
+                  const newIndex = table.getState().pagination.pageIndex + 1;
+                  table.setPageIndex(newIndex);
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.set("page", (newIndex + 1).toString());
+                  router.replace(`?${params.toString()}`, { scroll: false });
+                }}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }

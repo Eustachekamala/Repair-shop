@@ -28,10 +28,10 @@ export default function NotFound() {
           Oops! We couldn’t find the resource you’re looking for.
         </p>
         <Link
-          href="/"
+          href="/tickets"
           className="inline-block px-6 py-3 bg-[#AD6CAA] text-white rounded-lg font-semibold text-sm uppercase tracking-wide hover:bg-[#9D5C9A] transition-colors duration-300"
         >
-          Return Home
+          Go Home
         </Link>
       </div>
     </div>
