@@ -167,6 +167,18 @@ export default function TicketTable({ data }: Props) {
     }
   }, [isRefreshing]);
 
+  useEffect(() => {
+    const currerntPageIndex = table.getState().pagination.pageIndex;
+    const pageCount = table.getPageCount();
+
+    if(pageCount <= currerntPageIndex && currerntPageIndex > 0){
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('page', '1')
+      router.replace(`?${params.toString()}`, {scroll: false})
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[table.getState().columnFilters])
+
   return (
       <div className="flex flex-col gap-4 mt-6">
         <div className="rounded-lg overflow-hidden border border-border">
@@ -226,7 +238,7 @@ export default function TicketTable({ data }: Props) {
             <p className="whitespace-nowrap font-bold">
               {`Page ${
                 table.getState().pagination.pageIndex + 1
-              } of ${table.getPageCount()}`}
+              } of ${Math.max(1, table.getPageCount())}`}
               &nbsp;&nbsp;
               {`[${table.getFilteredRowModel().rows.length} ${
                 table.getFilteredRowModel().rows.length !== 1

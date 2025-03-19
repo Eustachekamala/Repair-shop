@@ -15,7 +15,7 @@ const MessageBox = ({
     content : React.ReactNode,
 }) => (
     <div className={`bg-accent px-4 py-2 my-2 rounded-lg ${type === 'error' ? 'text-red-500' : ''}`}>
-         {type === 'success' ? '✅' : '❌'} {content}
+         {type === 'success' ? '✅' : '⚠️'} {content}
     </div>
 )
 

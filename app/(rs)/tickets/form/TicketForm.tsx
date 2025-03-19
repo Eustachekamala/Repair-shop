@@ -134,7 +134,6 @@ export default function TicketForm({
                 fieldTitle="Completed"
                 nameInSchema="completed"
                 message="Yes"
-                disabled={!isEditable}
               />
             ) : null}
 

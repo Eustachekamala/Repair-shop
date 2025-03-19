@@ -37,10 +37,10 @@ async function CustomerFormPage({searchParams,} : {searchParams : Promise<{[key 
                 )
                
             }
-             return <CustomerForm isManager={isManager} customer={customer}/>
+             return <CustomerForm key={customerId} isManager={isManager} customer={customer}/>
         } else {
             // new customer form component
-            return <CustomerForm isManager={isManager}/>
+            return <CustomerForm key="new" isManager={isManager}/>
         }
     } catch (error) {
         if(error instanceof Error){
